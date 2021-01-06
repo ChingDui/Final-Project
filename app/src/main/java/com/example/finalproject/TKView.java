@@ -95,11 +95,7 @@ public class TKView extends View {
             canvas.drawBitmap(bitmap, tkX - 24, tkY - 50, paint);
             //子彈
             for (int i = 0; i < points.size(); i++) {
-                soundPool.play(id1,1.0f,1.0f,0,0,1);
-
                 canvas.drawBitmap(bomb, points.get(i).x, points.get(i).y, paint);
-                soundPool.unload(id2);
-                soundPool.release();
             }
             //敵人
             for (int i = 0; i < enemys.size(); i++) {
@@ -107,14 +103,11 @@ public class TKView extends View {
             }
             //當子彈打到敵人，就爆炸，並且移除
             for (int i = 0; i < blasts.size(); i++) {
-                soundPool.play(id2,1.0f,1.0f,0,0,1);
-
                 canvas.drawBitmap(blast, blasts.get(i).x - 64, blasts.get(i).y, paint);
                 blasts.remove(i);
                 score++;
                 i--;
-                soundPool.unload(id2);
-                soundPool.release();
+               soundPool.play(id2,1.0f,1.0f,0,0,1);
             }
             //回傳即時的血量和分數
             if (tkResultListener != null) {
@@ -136,6 +129,7 @@ public class TKView extends View {
             touchX = 0;
             handler.sendEmptyMessage(1);
         }
+
     }
     private void moveToLeft() {
         if (tkX > plantSpeed && tkX > touchX) {
@@ -195,6 +189,7 @@ public class TKView extends View {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                                 score = 0;
+                                soundPool.release();
                             }
                         })
                         .create()
@@ -298,9 +293,11 @@ public class TKView extends View {
                                 i--;
                             }
                         }
+
                         index++;
                         //子彈數量
                         if (index % bomb_num == 0) {
+                            soundPool.play(id1,1.0f,1.0f,0,0,1);
                             points.add(new Point(tkX, (tkY - 60)));
                         }
                         //敵人產生
