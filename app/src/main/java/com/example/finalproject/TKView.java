@@ -161,7 +161,7 @@ public class TKView extends View {
         post(new Runnable() {
             @Override
             public void run() {
-                new AlertDialog.Builder(getContext()).setMessage("Game " + "Over!")
+                new AlertDialog.Builder(getContext()).setMessage("You " + "Died!")
                         .setCancelable(false)
                         .setPositiveButton("重新開始", new DialogInterface.OnClickListener() {
                             @Override
