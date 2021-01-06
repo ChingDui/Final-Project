@@ -3,12 +3,19 @@ package com.example.finalproject;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.*;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.view.View;
 import androidx.annotation.Nullable;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
@@ -45,8 +52,13 @@ public class TKView extends View {
     private int currentSetting = 1;
     private TKResultListener tkResultListener;
     public int bomb_num = 10;
-
-    public TKView(Context context, @Nullable AttributeSet attrs) {
+    SoundPool soundPool = new SoundPool(32, AudioManager.STREAM_MUSIC,0);
+    AssetManager assetManager = getContext().getAssets();
+    AssetFileDescriptor shoot = assetManager.openFd("s.ogg");
+    AssetFileDescriptor boom = assetManager.openFd("b.ogg");
+    int id1 = soundPool.load(shoot,1);
+    int id2 = soundPool.load(boom, 1);
+    public TKView(Context context, @Nullable AttributeSet attrs) throws IOException {
         super(context, attrs);
         init();
     }
@@ -83,7 +95,11 @@ public class TKView extends View {
             canvas.drawBitmap(bitmap, tkX - 24, tkY - 50, paint);
             //子彈
             for (int i = 0; i < points.size(); i++) {
+                soundPool.play(id1,1.0f,1.0f,0,0,1);
+
                 canvas.drawBitmap(bomb, points.get(i).x, points.get(i).y, paint);
+                soundPool.unload(id2);
+                soundPool.release();
             }
             //敵人
             for (int i = 0; i < enemys.size(); i++) {
@@ -91,10 +107,14 @@ public class TKView extends View {
             }
             //當子彈打到敵人，就爆炸，並且移除
             for (int i = 0; i < blasts.size(); i++) {
+                soundPool.play(id2,1.0f,1.0f,0,0,1);
+
                 canvas.drawBitmap(blast, blasts.get(i).x - 64, blasts.get(i).y, paint);
                 blasts.remove(i);
                 score++;
                 i--;
+                soundPool.unload(id2);
+                soundPool.release();
             }
             //回傳即時的血量和分數
             if (tkResultListener != null) {
@@ -161,7 +181,7 @@ public class TKView extends View {
         post(new Runnable() {
             @Override
             public void run() {
-                new AlertDialog.Builder(getContext()).setMessage("Game " + "Over!")
+                new AlertDialog.Builder(getContext()).setMessage("You " + "Died!")
                         .setCancelable(false)
                         .setPositiveButton("重新開始", new DialogInterface.OnClickListener() {
                             @Override
